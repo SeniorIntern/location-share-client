@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Location Tracker</title>
+</head>
+
+<body>
+
+  <h1>Location Tracker</h1>
+  <p>Click the button to get your current location and send it to the backend.</p>
+
+  <button onclick="getLocation()">Get Location</button>
+
+  <script>
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(sendLocation, handleError);
+      } else {
+        alert("Geolocation is not supported by this browser.");
+      }
+    }
+
+    function sendLocation(position) {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+
+      // Send the coordinates to the backend
+      sendToBackend(latitude, longitude);
+    }
+
+    function handleError(error) {
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          alert("User denied the request for Geolocation.");
+          break;
+        case error.POSITION_UNAVAILABLE:
+          alert("Location information is unavailable.");
+          break;
+        case error.TIMEOUT:
+          alert("The request to get user location timed out.");
+          break;
+        case error.UNKNOWN_ERROR:
+          alert("An unknown error occurred.");
+          break;
+      }
+    }
+
+    function sendToBackend(latitude, longitude) {
+      const apiUrl = 'http://localhost:8000/api/location';
+
+      // Sample AJAX request using Fetch API
+      fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({latitude, longitude}),
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Location sent successfully:', data);
+          alert('Location sent successfully!');
+        })
+        .catch(error => {
+          console.error('Error sending location:', error);
+          alert('Error sending location. Please try again.');
+        });
+    }
+  </script>
+
+</body>
+
+</html>
